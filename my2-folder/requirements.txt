@@ -1,0 +1,7 @@
+--extra-index-url https://alpine-wheels.github.io/index
+
+nltk==3.8.1
+scikit-learn==1.5.1
+
+# python==3.10.12 => To run this application your python version must be 3.10.12
+# pip==22.0.2

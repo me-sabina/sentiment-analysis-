@@ -1,0 +1,44 @@
+services:
+  database:
+    image: postgres:alpine
+    restart: always
+    env_file: .env
+    container_name: database
+    environment:
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      PGPORT: ${DB_PORT}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    healthcheck:
+      test: ['CMD-SHELL', "sh -c 'pg_isready -U ${DB_USER} -d ${DB_NAME}'"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - backend_vol:/var/lib/postgresql/data/:rw
+    networks:
+      - network
+
+  app:
+    build: .
+    env_file: .env
+    container_name: app
+    environment:
+      - DB_HOST=database
+    ports:
+      - ${APP_PORT}:${APP_PORT}
+    depends_on:
+      database:
+        condition: service_healthy
+    command: >
+      sh -c "npm run migrate:p && npm run start"
+    networks:
+      - network
+
+volumes:
+  backend_vol:
+
+networks:
+  network:
